@@ -335,13 +335,13 @@
           </thead>
           <tbody>
             <tr><th scope="row">Scoping</th><td>24 hours</td><td class="price">$2.00</td></tr>
-            <tr><th scope="row"></th><td>2 to 3 days</td><td class="price">$1.75</td></tr>
+            <tr><th scope="row"></th><td>3 to 4 days</td><td class="price">$1.75</td></tr>
             <tr><th scope="row"></th><td>4 to 6 days</td><td class="price">$1.45</td></tr>
             <tr><th scope="row">Transcription</th><td>24 hours</td><td class="price">$2.00</td></tr>
-            <tr><th scope="row"></th><td>2 to 3 days</td><td class="price">$1.75</td></tr>
+            <tr><th scope="row"></th><td>3 to 4 days</td><td class="price">$1.75</td></tr>
             <tr><th scope="row"></th><td>4 to 6 days</td><td class="price">$1.45</td></tr>
             <tr><th scope="row">Proofreading (no audio)</th><td>24 hours</td><td class="price">$1.00</td></tr>
-            <tr><th scope="row"></th><td>2 to 3 days</td><td class="price">$0.80</td></tr>
+            <tr><th scope="row"></th><td>3 to 4 days</td><td class="price">$0.80</td></tr>
             <tr><th scope="row"></th><td>4 to 6 days</td><td class="price">$0.60</td></tr>
           </tbody>
         </table>
@@ -419,11 +419,26 @@
   var form = document.getElementById('contact-form');
   var msg = document.getElementById('form-msg');
   form.addEventListener('submit', function (e) {
+    e.preventDefault();
     var notHosted = location.protocol === 'file:' || location.protocol === 'about:' || location.protocol === 'blob:' || location.hostname === '';
     if (notHosted) {
-      e.preventDefault();
       msg.textContent = 'This form will work once the page is live on Netlify. For now, use the email link below.';
+      return;
     }
+    msg.textContent = 'Sending...';
+    fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(new FormData(form)).toString()
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error('Send failed');
+        form.reset();
+        msg.textContent = 'Thanks, your message was sent. I will get back to you soon.';
+      })
+      .catch(function () {
+        msg.textContent = 'Something went wrong sending that. Please email me directly using the link below.';
+      });
   });
 </script>
 
